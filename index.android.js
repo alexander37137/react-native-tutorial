@@ -11,7 +11,8 @@ import React, {
     View,
     Image,
     ListView,
-    Dimensions
+    Dimensions,
+    Animated
 } from 'react-native';
 
 const REQUEST_URL = 'https:/raw.githubusercontent.com/facebook/react-native/master/docs/MoviesExample.json';
@@ -24,11 +25,20 @@ class ReactProject extends Component {
                 rowHasChanged: (row1, row2) => row1 !== row2,
             }),
             loaded: false,
+            bounceValue: new Animated.Value(0)
         };
     }
 
     componentDidMount() {
         this.fetchData();
+        this.state.bounceValue.setValue(1.5);
+        Animated.spring(
+            this.state.bounceValue,
+            {
+                toValue: 0.8,
+                friction: 1,
+            }
+        ).start();
     }
 
     fetchData() {
@@ -51,6 +61,10 @@ class ReactProject extends Component {
             <Image
                 style={styles.background}
                 source={require('./background-big.jpg')}>
+                <Animated.Image
+                    source={require('./logo.png')}
+                    style={[styles.bouncer, {transform: [{scale: this.state.bounceValue}]}]}
+                />
                 <ListView
                     dataSource={this.state.dataSource}
                     renderRow={this.renderMovie}
@@ -89,10 +103,15 @@ class ReactProject extends Component {
 const styles = StyleSheet.create({
     background: {
         flex: 1,
+        flexDirection: "column",
         width: null,
         height: null
     },
+    bouncer: {
+        flex: 1,
+    },
     listView: {
+        flex: 6,
         paddingTop: 20,
     },
     container: {
